@@ -1,0 +1,29 @@
+{
+  "name": "xake",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node xake.js"
+  },
+  "dependencies": {
+      "async": "*",
+      "gridfs-stream": "*",
+      "mongoose": "*",
+      "temp": "*",
+      "rimraf": "*",
+      "path": "*",
+      "wrench": "*",
+      "winston": "*",
+      "fstream": "*",
+      "findit": "*",
+      "nodegit": "*",
+      "github": "*",            
+      "underscore": "*",
+      "js-yaml": "*",
+      "recursive-readdir": "*",
+      "cheerio": "*",
+      "fd-slicer": "*",
+      "crypto": "*",      
+      "tar": "*"
+  }
+}
