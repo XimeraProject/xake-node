@@ -7,6 +7,7 @@
   },
   "dependencies": {
       "async": "*",
+      "toposort": "*",      
       "gridfs-stream": "*",
       "mongoose": "*",
       "temp": "*",
@@ -24,6 +25,7 @@
       "cheerio": "*",
       "fd-slicer": "*",
       "crypto": "*",      
-      "tar": "*"
+      "tar": "*",
+      "minimist": "*"
   }
 }
