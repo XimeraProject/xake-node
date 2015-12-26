@@ -636,99 +636,8 @@ function updateRepo(githubIdentifier, commitSha, callback) {
 
 	function (callback) {
 	    winston.info("Saving HTML files...");
-	    
-	    processMatchingFiles(outputTarSlicer.createReadStream(), "html",
-				 function( path, text, callback ) {
-				     // Get the title from the filename, or the <title> tag if there is one
-				     var $ = cheerio.load( text );
-				     var title = $('title').html();
-				     if (!(title))
-					 title = basename(path).replace(".html", "");
+	    //BADBAD
 
-				     if ($('meta[name="description"]').attr('content') == 'xourse') {
-					 // This is a "xourse" file which describes the global structure of a course
-					 winston.info( "Saving xourse file..." );
-					 
-					 var $ = cheerio.load( text );
-
-					 // Normalize the activity links
-					 $('a.activity').each( function() {
-					     var href = $(this).attr('href');
-					     
-					     href = pathLibrary.normalize( 
-						 pathLibrary.join( pathLibrary.dirname( path ),
-								   href )
-					     );
-
-					     href = href.replace( /\.tex$/, '' );
-					     
-					     $(this).attr('href', href);
-					 });					 
-					 
-					 var text = $('body').html();
-				     
-					 saveToContentAddressableFilesystem( text, function(err, hash) {
-					     var xourse = new mdb.Xourse();
-					     
-					     // Save the HTML file to the database as an xourse
-					     xourse.commit = headCommit.sha();
-					     xourse.hash = hash;
-					     xourse.path = path.replace( /.html$/, "" );
-                                             xourse.title = title;
-					     xourse.activityList = [];
-
-					     // Go through the xourse text and add the activity URLs to the activity list
-					     $('a.activity').each( function() {
-						 xourse.activityList.push( $(this).attr('href') );
-					     });
-					     
-					     // Save xourse for additional processing later
-					     xourses.push( xourse );
-					     
-					     xourse.save(callback);
-					 });
-				     } else {
-					 // This is a regular activity
-
-					 // Extract everything between body tags
-					 text = cheerio.load( text )('body').html();
-
-					 if (text) {
-					     saveToContentAddressableFilesystem( text, function(err, hash) {
-						 var activity = new mdb.Activity();
-						 
-						 // Find all the learning outcomes mentioned in the <head>'s meta tags
-						 var outcomes = [];
-						 
-						 $('meta[name="learning-outcome"]').each( function() {
-						     var learningOutcome = $(this).attr('content');
-						     
-						     var outcome = new mdb.Outcome();
-						     outcome.name = learningOutcome;
-						     outcome.hash = hash;
-						     
-						     outcome.save( function() {
-							 winston.info( "Associated " + path + " with outcome: " + learningOutcome );
-						     });
-						     
-						     outcomes.push( learningOutcome );
-						 });
-						 
-						 // Save the HTML file to the database as an activity
-						 activity.commit = headCommit.sha();
-						 activity.hash = hash;
-						 activity.path = path.replace( /.html$/, "" );
-						 activity.title = title;
-						 activity.outcomes = outcomes;
-						 
-						 activity.save(callback);
-					     });
-					 } else {
-					     // text is possibly null if, say, the HTML file is malformed somehow
-					     callback(null);
-					 }
-				     }
-				 }, callback);
 	},	
 	
 	function (callback) {
@@ -998,11 +907,109 @@ function isTexDocument( filename, callback ) {
     return;
 }
 
+/****************************************************************/
+// Here we actually PROCESS the input tex files into html files
 
 var spawn = require('child_process').spawn;
 
+function isXourseHtmlFile( filename, callback ) {
+}
 
-function compileLatex( filename, callback )
+function transformHtml( filename, callback ) {
+
+				 function( filename, text, callback ) {
+				     // Get the title from the filename, or the <title> tag if there is one
+				     var $ = cheerio.load( text );
+				     var title = $('title').html();
+				     if (!(title))
+					 title = basename(filename).replace(".html", "");
+
+				     if ($('meta[name="description"]').attr('content') == 'xourse') {
+					 // This is a "xourse" file which describes the global structure of a course
+					 winston.info( "Saving xourse file..." );
+					 
+					 var $ = cheerio.load( text );
+
+					 // Normalize the activity links
+					 $('a.activity').each( function() {
+					     var href = $(this).attr('href');
+					     
+					     href = pathLibrary.normalize( 
+						 pathLibrary.join( pathLibrary.dirname( path ),
+								   href )
+					     );
+
+					     href = href.replace( /\.tex$/, '' );
+					     
+					     $(this).attr('href', href);
+					 });					 
+					 
+					 var text = $('body').html();
+				     
+					 saveToContentAddressableFilesystem( text, function(err, hash) {
+					     var xourse = new mdb.Xourse();
+					     
+					     // Save the HTML file to the database as an xourse
+					     xourse.commit = headCommit.sha();
+					     xourse.hash = hash;
+					     xourse.path = path.replace( /.html$/, "" );
+                                             xourse.title = title;
+					     xourse.activityList = [];
+
+					     // Go through the xourse text and add the activity URLs to the activity list
+					     $('a.activity').each( function() {
+						 xourse.activityList.push( $(this).attr('href') );
+					     });
+					     
+					     // Save xourse for additional processing later
+					     xourses.push( xourse );
+					     
+					     xourse.save(callback);
+					 });
+				     } else {
+					 // This is a regular activity
+
+					 // Extract everything between body tags
+					 text = cheerio.load( text )('body').html();
+
+					 if (text) {
+					     saveToContentAddressableFilesystem( text, function(err, hash) {
+						 var activity = new mdb.Activity();
+						 
+						 // Find all the learning outcomes mentioned in the <head>'s meta tags
+						 var outcomes = [];
+						 
+						 $('meta[name="learning-outcome"]').each( function() {
+						     var learningOutcome = $(this).attr('content');
+						     
+						     var outcome = new mdb.Outcome();
+						     outcome.name = learningOutcome;
+						     outcome.hash = hash;
+						     
+						     outcome.save( function() {
+							 winston.info( "Associated " + filename + " with outcome: " + learningOutcome );
+						     });
+						     
+						     outcomes.push( learningOutcome );
+						 });
+						 
+						 // Save the HTML file to the database as an activity
+						 activity.commit = headCommit.sha();
+						 activity.hash = hash;
+						 activity.path = filename.replace( /.html$/, "" );
+						 activity.title = title;
+						 activity.outcomes = outcomes;
+						 
+						 activity.save(callback);
+					     });
+					 } else {
+					     // text is possibly null if, say, the HTML file is malformed somehow
+					     callback(null);
+					 }
+				     }
+				 }, callback);
+
+function pdflatex( filename, callback )
 {
     var tikzexport = '"\\PassOptionsToClass{tikzexport}{ximera}\\nonstopmode\\input{' + path.basename(filename) + '}"';
     
@@ -1015,28 +1022,31 @@ function compileLatex( filename, callback )
     
     latex.on('close', function (code) {
 	console.log('pdflatex exited with code ' + code);
-
+	
 	if (code != 0) {
-	    callback( "pdflatex on " + filename + " failed with " + code, null );
+	    callback( "pdflatex on " + filename + " failed with " + code );
 	} else {
-	    var htlatex  = spawn('htlatex', [path.basename(filename), "ximera,charset=utf-8,-css", "", "", "--interaction=nonstopmode -shell-escape -file-line-error"],
-				 { cwd: path.dirname(filename) });	    
-
-	    htlatex.stdout.on('data', function (data) {
-		process.stdout.write(data);
-	    });
-	    
-	    htlatex.on('close', function (code) {
-		console.log('htlatex exited with code ' + code);
-
-		if (code == 0) {
-		    console.log( "good job with " + filename );
-		    callback( null );
-		}
-	    });
+	    callback( null );
 	}
     });
+}
 
+function htlatex( filename, callback ) {
+    var htlatex  = spawn('htlatex', [path.basename(filename), "ximera,charset=utf-8,-css", "", "", "--interaction=nonstopmode -shell-escape -file-line-error"],
+			 { cwd: path.dirname(filename) });	    
+
+    htlatex.stdout.on('data', function (data) {
+	process.stdout.write(data);
+    });
+	    
+    htlatex.on('close', function (code) {
+	console.log('htlatex exited with code ' + code);
+	
+	if (code == 0) {
+	    console.log( "good job with " + filename );
+	    callback( null );
+	}
+    });
 }
 
 /****************************************************************/
