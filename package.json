@@ -24,8 +24,16 @@
       "recursive-readdir": "*",
       "cheerio": "*",
       "fd-slicer": "*",
-      "crypto": "*",      
+      "crypto": "*",
+      "ronin": "*",
+      "progress": "*",
+      "timeago": "*",
+      "colors": "*",
       "tar": "*",
       "minimist": "*"
+  },
+    
+  "bin": {
+    "xake": "./bin/xake"
   }
 }
