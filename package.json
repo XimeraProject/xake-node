@@ -8,8 +8,7 @@
   "dependencies": {
       "async": "*",
       "toposort": "*",      
-      "gridfs-stream": "*",
-      "mongoose": "*",
+      "trash": "*",
       "temp": "*",
       "rimraf": "*",
       "path": "*",
