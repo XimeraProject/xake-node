@@ -1,38 +1,48 @@
 {
   "name": "xake",
-  "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "start": "node xake.js"
-  },
-  "dependencies": {
-      "async": "*",
-      "toposort": "*",      
-      "trash": "*",
-      "temp": "*",
-      "rimraf": "*",
-      "path": "*",
-      "wrench": "*",
-      "winston": "*",
-      "fstream": "*",
-      "findit": "*",
-      "nodegit": "*",
-      "github": "*",            
-      "underscore": "*",
-      "js-yaml": "*",
-      "recursive-readdir": "*",
-      "cheerio": "*",
-      "fd-slicer": "*",
-      "crypto": "*",
-      "ronin": "*",
-      "progress": "*",
-      "timeago": "*",
-      "colors": "*",
-      "tar": "*",
-      "minimist": "*"
-  },
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+	"start": "node xake.js"
+    },
+    "author": {
+	"name" : "Jim Fowler",
+	"email" : "kisonecat@gmail.com",
+	"url" : "http://kisonecat.com/"
+    },
+    "repository" : {
+	"type" : "git",
+	"url" : "https://github.com/kisonecat/xake.git"
+    },
+    "license": "GPL-3.0",
+    "dependencies": {
+	"async": "*",
+	"toposort": "*",      
+	"trash": "*",
+	"temp": "*",
+	"rimraf": "*",
+	"path": "*",
+	"wrench": "*",
+	"winston": "*",
+	"fstream": "*",
+	"findit": "*",
+	"nodegit": "*",
+	"github": "*",            
+	"underscore": "*",
+	"js-yaml": "*",
+	"recursive-readdir": "*",
+	"cheerio": "*",
+	"fd-slicer": "*",
+	"crypto": "*",
+	"ronin": "*",
+	"progress": "*",
+	"timeago": "*",
+	"colors": "*",
+	"tar": "*",
+	"minimist": "*"
+    },
     
-  "bin": {
-    "xake": "./bin/xake"
-  }
+    "bin": {
+	"xake": "./bin/xake"
+    }
 }
