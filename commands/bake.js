@@ -333,7 +333,7 @@ var BakeCommand = module.exports = Command.extend({
         jobs: {
             type: 'integer',
             alias: 'j',
-	    default: 1
+	    default: 2
         }
     },
     
