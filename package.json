@@ -1,7 +1,6 @@
 {
   "name": "xake",
-    "version": "0.1.0",
-    "private": true,
+    "version": "0.1.2",
     "scripts": {
 	"start": "node xake.js"
     },
@@ -17,6 +16,8 @@
     "license": "GPL-3.0",
     "dependencies": {
 	"async": "*",
+	"prompt": "*",
+	"mkdirp": "*",		
 	"toposort": "*",      
 	"trash": "*",
 	"temp": "*",
@@ -43,6 +44,6 @@
     },
     
     "bin": {
-	"xake": "./bin/xake"
+	"xake": "app.js"
     }
 }

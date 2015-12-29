@@ -65,6 +65,8 @@ function determineFilesToClean( directory, callback ) {
 		callback( null, filenames );
 	    });
 	},
+
+	// BADBAD: do not delete files if they are committed to the repository
 	
     ], function(err, results) {
 	callback(err, results);
