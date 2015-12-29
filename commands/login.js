@@ -2,31 +2,13 @@ var Command = require('ronin').Command;
 var winston = require('winston');
 var prompt = require('prompt');
 var path = require('path');
-var os = require('os');
-var mkdirp = require('mkdirp');
 var fs = require('fs');
-
-function credentialFilename() {
-    return path.join( os.homedir(), ".cache", "xake", "session.json" );
-}
-
-function login(credentials, callback) {
-    var filename = credentialFilename();
-    
-    winston.info( "Storing credentials in " + filename );
-    
-    mkdirp( path.dirname(filename), function(err) {
-	if (err)
-	    callback(err);
-	else
-	    fs.writeFile( filename, JSON.stringify(credentials), callback );	    
-    });
-}
+var credentials = require('../lib/credentials');
 
 var LoginCommand = module.exports = Command.extend({
     use: ['winston'],
     
-    desc: 'Login to Ximera',
+    desc: 'Store your key and secret so you can publish content to Ximera',
 
     options: {
         key: {
@@ -37,7 +19,7 @@ var LoginCommand = module.exports = Command.extend({
 	}
     },
 
-    help: function () {
+    information: function () {
 	return "To log in, run " + "xake login --key ".green + "your-key".blue + " and paste in the " + "secret".blue + " when prompted.  " +
 	    "This will store your key and secret in " + "~/.cache/xake/session.json until you log out by running " + "xake logout".green;
     },
@@ -46,8 +28,8 @@ var LoginCommand = module.exports = Command.extend({
 	var global = this.global;
 	winston = global.winston;
 
-	fs.access( credentialFilename(), fs.R_OK, function(err) {
-	    if (!err)
+	credentials.exists( function(loggedIn) {
+	    if (loggedIn)
 		winston.warn( "Already logged in." );
 	});
 	
@@ -80,7 +62,7 @@ var LoginCommand = module.exports = Command.extend({
 	    if (err)
 		throw new Error(err);
 	    else {
-		login( results, function(err) {
+		credentials.save( results, function(err) {
 		    if (err)
 			throw new Error(err);
 		    else
