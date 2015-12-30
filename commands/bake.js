@@ -3,40 +3,32 @@ var async = require('async');
 var git = require('nodegit');
 var path = require('path');
 var winston = null; // loaded from middleware
-var progress = require('progress');
-var colors = require('colors');
 var compile = require('../lib/compile');
 var files = require('../lib/files');
+var meter = require('../lib/meter');
 
 var Command = require('ronin').Command;
 
 function compileFiles( directory, filenames, jobLimit, callback ) {
-    var green = '#'.green;
-    var red = '.'.red;
-		
-    var bar = new progress('Compiling ' + '['.gray + ':bar' + ']'.gray + ' :percent (:etas remaining) ' + ':file'.magenta,
-			   { total: filenames.length,
-			     complete: green,
-			     width: 20,
-			     incomplete: red,
-			   });
-    
-    async.eachLimit( filenames, jobLimit, function(filename, callback) {
-	bar.tick(0, {file: path.relative( directory, filename )});
-	compile.compile( directory, filename, function(err) {
+    meter.run( filenames.length, 'Compiling', function( label, tick ) {
+
+	async.eachLimit( filenames, jobLimit, function(filename, callback) {
+	    label( path.relative( directory, filename ) );
+	    
+	    compile.compile( directory, filename, function(err) {
+		if (err)
+		    throw new Error(err);
+		else {
+		    tick();
+		    callback(null);
+		}
+	    });
+	}, function(err) {
 	    if (err)
 		throw new Error(err);
-	    else {
-		bar.tick(1, {file: ''});
+	    else
 		callback(null);
-	    }
 	});
-	
-    }, function(err) {
-	if (err)
-	    throw new Error(err);
-	else
-	    callback(null);
     });
 }
 
