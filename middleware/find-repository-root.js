@@ -45,9 +45,10 @@ module.exports = function( next ) {
 	},
 	
 	function(err, repository) {
-	    if (err)
+	    if (err) {
+		winston.error(err);
 		throw new Error(err);
-	    else {
+	    } else {
 		winston.debug( 'I will be using ' + p + ' as the git repository.' );
 		global.repository = p;
 		next();
