@@ -14,7 +14,9 @@ module.exports = function( next ) {
 		    next();
 		}
 	    });
-	} else
+	} else {
+	    winston.error("You are not logged in.");
 	    throw new Error("You must be logged in.");
+	}
     });    
 };

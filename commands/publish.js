@@ -12,10 +12,10 @@ function publishFiles( directory, filenames, jobLimit, callback ) {
 	async.eachLimit( filenames, jobLimit, function(filename, callback) {
 	    label( path.relative( directory, filename ) );
 	    
-	    ximera.publish( directory, filename, function(err) {
-		if (err)
-		    throw new Error(err);
-		else {
+	    ximera.publishFile( directory, filename, function(err) {
+		if (err) {
+		    throw new Error(err + "  Failed to publish " + filename);
+		} else {
 		    tick();
 		    callback(null);
 		}
@@ -43,15 +43,30 @@ var PublishCommand = module.exports = Command.extend({
 	winston = global.winston;
 
 	var jobLimit = 1;
-	
-	files.publishableFiles( global.repository, function(err, filenames) {
-	    if (err)
-		throw new Error(err);
-	    else {
-		publishFiles( global.repository, filenames, jobLimit, function() {
-		    winston.info( "Published repository." );
+
+	async.series([
+	    function(callback) {
+		ximera.publishCommit( global.repository, function(err) {
+		    if (err)
+			callback(err);
+		    else
+			callback(null);
+		});
+	    },
+	    function(callback) {
+		files.publishableFiles( global.repository, function(err, filenames) {
+		    if (err)
+			throw new Error(err);
+		    else {
+			publishFiles( global.repository, filenames, jobLimit, callback );
+		    }
 		});
 	    }
+	], function(err) {
+	    if (err)
+		throw new Error(err);
+	    else
+		winston.info( "Published repository." );
 	});
     }
 });

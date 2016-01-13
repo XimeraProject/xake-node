@@ -29,15 +29,21 @@ var ServeCommand = module.exports = Command.extend({
 
 	var server = http.createServer(function(req, res) {
 	    winston.info( req.method + " " + req.url );
-	    
-	    var done = finalhandler(req, res);
 
-	    // Add missing .html extensions
-	    if ( ! (req.url.match( /\.html$/ ))) {
-		req.url = req.url + '.html'
+	    //if ((req.url == '/users/xarma') || (req.url == '/users/xudos') || (req.url.match(/^\/state\/undefined/)) ) {
+	    if (req.url.match(/^\/state\/undefined/)) {	    
+		res.writeHead(200);
+		res.end('{}');
+	    } else {
+		var done = finalhandler(req, res);
+
+		// Add missing .html extensions
+		if ( ! (req.url.match( /\.html$/ ))) {
+		    req.url = req.url + '.html'
+		}
+		
+		serve(req, res, done);
 	    }
-	    
-	    serve(req, res, done);
 	});	
 	
 	winston.info( "Serving files in " + global.repository + " at http://localhost:" + port + "/" );
