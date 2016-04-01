@@ -6,13 +6,13 @@ var files = require('../lib/files');
 var ximera = require('../lib/ximera-api');
 var meter = require('../lib/meter');
 
-function publishFiles( directory, filenames, jobLimit, callback ) {
+function publishFiles( command, directory, filenames, jobLimit, callback ) {
     meter.run( filenames.length, 'Publishing', function( label, tick ) {
 	
 	async.eachLimit( filenames, jobLimit, function(filename, callback) {
 	    label( path.relative( directory, filename ) );
 	    
-	    ximera.publishFile( directory, filename, function(err) {
+	    command( directory, filename, function(err) {
 		if (err) {
 		    throw new Error(err + "  Failed to publish " + filename);
 		} else {
@@ -44,8 +44,14 @@ var PublishCommand = module.exports = Command.extend({
 
 	var jobLimit = 1;
 
+	var allFilenames = [];
+	var xourseFilenames = [];
+	var activityFilenames = [];
+	
 	async.series([
 	    function(callback) {
+		winston.info( "Publishing the commit hash" );
+		winston.info( "Skipping the commit hash" );
 		ximera.publishCommit( global.repository, function(err) {
 		    if (err)
 			callback(err);
@@ -54,13 +60,38 @@ var PublishCommand = module.exports = Command.extend({
 		});
 	    },
 	    function(callback) {
+		winston.info( "Identifying publishable files" );
 		files.publishableFiles( global.repository, function(err, filenames) {
 		    if (err)
 			throw new Error(err);
 		    else {
-			publishFiles( global.repository, filenames, jobLimit, callback );
+			allFilenames = filenames;
+			callback(null);
 		    }
 		});
+	    },
+	    function(callback) {
+		winston.info( "Identifying activities" );
+		async.filter( allFilenames, files.isActivity, function(results) {
+		    activityFilenames = results;
+		    callback(null);
+		});
+	    },
+	    function(callback) {
+		winston.info( "Publishing activities" );		
+		publishFiles( ximera.publishActivity, global.repository, activityFilenames, jobLimit, callback );		
+	    },
+	    function(callback) {
+		winston.info( "Identifying xourse files" );				
+		async.filter( allFilenames, files.isXourse, function(results) {
+		    xourseFilenames = results;
+		    callback(null);
+		});
+	    },
+	    function(callback) {
+		winston.info( "Publishing xourses" );	
+		// The xourse flies is published after the activities, since links will be made between the xourse and the activities
+		publishFiles( ximera.publishXourse, global.repository, xourseFilenames, jobLimit, callback );
 	    }
 	], function(err) {
 	    if (err)

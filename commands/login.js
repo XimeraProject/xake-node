@@ -4,6 +4,7 @@ var prompt = require('prompt');
 var path = require('path');
 var fs = require('fs');
 var credentials = require('../lib/credentials');
+var ximera = require('../lib/ximera-api');
 
 var LoginCommand = module.exports = Command.extend({
     use: ['winston'],
@@ -16,6 +17,12 @@ var LoginCommand = module.exports = Command.extend({
         },	
 	secret: {
             type: 'string',	    
+	},
+	server: {
+            type: 'string',
+	},
+	port: {
+            type: 'integer',
 	}
     },
 
@@ -24,7 +31,7 @@ var LoginCommand = module.exports = Command.extend({
 	    "This will store your key and secret in " + "~/.cache/xake/session.json until you log out by running " + "xake logout".green;
     },
     
-    run: function (key, secret) {
+    run: function (key, secret, server, port) {
 	var global = this.global;
 	winston = global.winston;
 
@@ -62,11 +69,20 @@ var LoginCommand = module.exports = Command.extend({
 	    if (err)
 		throw new Error(err);
 	    else {
+		if (server)
+		    results.server = server;
+		if (port)
+		    results.port = port;
+
 		credentials.save( results, function(err) {
 		    if (err)
 			throw new Error(err);
-		    else
-			winston.info("Logged in.");
+		    else {
+			winston.info("Saved credentials.");
+			ximera.user( function(err, user) {
+			    winston.info( "Logged in as", user.name );
+			});
+		    }
 		});
 	    }
 	});
