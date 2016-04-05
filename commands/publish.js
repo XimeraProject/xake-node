@@ -51,7 +51,6 @@ var PublishCommand = module.exports = Command.extend({
 	async.series([
 	    function(callback) {
 		winston.info( "Publishing the commit hash" );
-		winston.info( "Skipping the commit hash" );
 		ximera.publishCommit( global.repository, function(err) {
 		    if (err)
 			callback(err);
