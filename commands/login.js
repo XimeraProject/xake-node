@@ -80,7 +80,11 @@ var LoginCommand = module.exports = Command.extend({
 		    else {
 			winston.info("Saved credentials.");
 			ximera.user( function(err, user) {
-			    winston.info( "Logged in as", user.name );
+			    if (err) {
+				winston.error( "Failed to log in: " + err );
+			    } else {
+				winston.info( "Logged in as", user.name );
+			    }
 			});
 		    }
 		});
