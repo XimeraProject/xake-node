@@ -7,6 +7,7 @@ var compile = require('../lib/compile');
 var files = require('../lib/files');
 var meter = require('../lib/meter');
 
+
 var Command = require('ronin').Command;
 
 var CompileCommand = module.exports = Command.extend({
