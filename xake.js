@@ -9,12 +9,7 @@ var async = require('async')
   , path = require('path')
   ;
 
-/****************************************************************/
-// Print welcome message
-console.log( "This is xake, Version " + require('./package.json').version + "." );
-
-
-// I wish I hadn't used a variable called "path" in so many places...  This is confusing.
+// BADBAD: I wish I hadn't used a variable called "path" in so many places...  This is confusing.
 var path = pathLibrary;
 var extname = pathLibrary.extname;
 var basename = pathLibrary.basename;
@@ -634,11 +629,6 @@ function updateRepo(githubIdentifier, commitSha, callback) {
 				 }, callback);
 	},	
 
-	function (callback) {
-	    winston.info("Saving HTML files...");
-	    //BADBAD
-
-	},	
 	
 	function (callback) {
 	    winston.info("Saving images...");
@@ -783,134 +773,11 @@ console.log( "bake" );
 var argv = require('minimist')(process.argv.slice(2));
 console.log(argv);
 
-/** @function hashObject reads file with name filename and calls callback with (error, git object hash) */
-function hashObject( filename, callback ) {
-    fs.stat( filename, function(err, stats) {
-	var readStream = fs.createReadStream(filename);
-	var shasum = crypto.createHash('sha1');
-	shasum.write("blob " + stats.size + "\0" );
-	readStream.pipe(shasum);
-	
-	shasum.on('finish', function() {
-	    // the hash stream automatically pushes the digest
-	    // to the readable side once the writable side is ended
-	    callback(null, this.read());
-	}).setEncoding('hex');
-    });
-}
-
-/** @function isInRepository checks if filename is committed to the repo, and calls callback with a boolean AND NO ERROR */
-function isInRepository( filename, callback ) {
-    // Open the repository directory.
-    git.Repository.open(".")
-	.then(function(repo) {     // Open the master branch.
-	    return repo.getMasterCommit();
-	})
-	.then(function(commit) {
-	    commit.getEntry(filename).then(function(entry) {
-		callback( true );
-	    }, function(err) {
-		callback( false );
-	    });
-	}, function(err) {
-	    callback( false );
-	});
-}
-
-/** @function isClean compares filename to the master commit, and calls callback with a boolean if the file matches the commited file */
-function isClean( filename, callback ) {
-    // Open the repository directory.
-    git.Repository.open(".")
-	.then(function(repo) {     // Open the master branch.
-	    return repo.getMasterCommit();
-	})
-	.then(function(commit) {
-	    commit.getEntry(filename).then(function(entry) {
-		var sha = entry.sha();
-		// Use treeEntry
-		hashObject( filename, function(err, hash) {
-		    if (err)
-			callback( err );
-		    else {
-			if (hash == sha)
-			    callback( null, true );
-			else
-			    callback( null, false );
-		    }
-		});
-	    }, function( err ) {
-		callback( err );
-	    });
-	});
-};
-
-/** @function latexDependencies reads filename, looks for inputs and includes, and callbacks with a list of normalized paths to dependencies */
-function latexDependencies( filename, callback ) {
-    fs.readFile( filename, function(err, data) {
-	if (err)
-	    callback(err);
-
-	data = data.toString().replace(/\s/, '' );
-
-	var dependencies = [];
-	
-	var re = new RegExp(
-            "\\\\(input|activity|include|includeonly){([^}]+)}",
-            "gi");
-	
-        var result;
-        while ((result = re.exec(data)) !== null) {
-            var dependency = path.normalize( path.join( path.dirname(filename), result[2] ) );
-	    dependencies.push( dependency );
-	}
-
-	var resolvedDependencies = async.map(
-	    dependencies,
-	    function( dependency, callback ) {
-		fs.stat( dependency, function(err, stats) {
-		    if (err) {
-			fs.stat( dependency + ".tex", function(err, stats) {
-			    callback( err, dependency + ".tex" );
-			});
-		    } else
-			callback( null, dependency );
-		});
-	    }, function( err, results ) {
-		callback( err, results );
-	    }
-        );
-    });
-}
-
-/** @function isTexDocument reads filename, checks for .tex extension and looks for \begin{document}, and callback(true) if it finds one and callback(false) if not */
-function isTexDocument( filename, callback ) {
-    if (!(filename.match( /\.tex$/ ))) {
-	callback(false);
-	return;
-    } else
-	fs.readFile( filename, function(err, data) {
-	    if (err)
-		callback(false);
-	    
-	    data = data.toString().replace(/\s/, '' );
-	    
-	    var re = new RegExp(
-		"\\\\begin{document}",
-		"gi");
-	    
-	    if (data.match(re))
-		callback(true);
-	    else
-		callback(false);
-	});
-    
-    return;
-}
 
 /****************************************************************/
 // Here we actually PROCESS the input tex files into html files
 
-var spawn = require('child_process').spawn;
+
 
 function isXourseHtmlFile( filename, callback ) {
 }
@@ -1009,90 +876,13 @@ function transformHtml( filename, callback ) {
 				     }
 				 }, callback);
 
-function pdflatex( filename, callback )
-{
-    var tikzexport = '"\\PassOptionsToClass{tikzexport}{ximera}\\nonstopmode\\input{' + path.basename(filename) + '}"';
-    
-    var latex  = spawn('pdflatex', ['-file-line-error', '-shell-escape', tikzexport],
-		       { cwd: path.dirname(filename) });
-    
-    latex.stdout.on('data', function (data) {
-	process.stdout.write(data);
-    });
-    
-    latex.on('close', function (code) {
-	console.log('pdflatex exited with code ' + code);
-	
-	if (code != 0) {
-	    callback( "pdflatex on " + filename + " failed with " + code );
-	} else {
-	    callback( null );
-	}
-    });
-}
-
-function htlatex( filename, callback ) {
-    var htlatex  = spawn('htlatex', [path.basename(filename), "ximera,charset=utf-8,-css", "", "", "--interaction=nonstopmode -shell-escape -file-line-error"],
-			 { cwd: path.dirname(filename) });	    
-
-    htlatex.stdout.on('data', function (data) {
-	process.stdout.write(data);
-    });
-	    
-    htlatex.on('close', function (code) {
-	console.log('htlatex exited with code ' + code);
-	
-	if (code == 0) {
-	    console.log( "good job with " + filename );
-	    callback( null );
-	}
-    });
-}
 
 /****************************************************************/
 
-// BADBAD: this should be chained together with the rest of the concurrent start-up
 
-/** @function isXimeraClassFileInstalled calls callback with true or false, as to whether or not pdflatex can find ximera.cls */
-function isXimeraClassFileInstalled(callback) {
-    var kpsewhich  = spawn('kpsewhich', ['ximera.cls']);
-
-    kpsewhich.on('close', function (code) {
-	if (code == 0)
-	    callback( true );
-	else
-	    callback( false );	    
-    });
-}
-
-isXimeraClassFileInstalled( function(isInstalled) {
-    if (!isInstalled) {
-	winston.error( "Could not find a copy of ximera.cls, but xake requires that you install LaTeX and the ximeraLatex package." );
-	process.exit();
-    }
-});
 
 /****************************************************************/
 
-/** @function isCurrentDirectoryGitRepository calls callback with true or false, as to whether or not we can open the current directory as a git repository */
-function isCurrentDirectoryGitRepository( callback ) {
-    git.Repository.open(".")
-	.then(function(repo) {
-	    callback( true );
-	}, function(err) {
-	    callback( false );
-	});
-}
-
-isCurrentDirectoryGitRepository( function(isRepository) {
-    if (!isRepository) {
-	winston.error( "The current directory is not a git repository, but xake must be called from the ROOT DIRECTORY of a git repository." );
-	process.exit();
-    }
-});
-
-/****************************************************************/
-var recursive = require('recursive-readdir');
 
 var q = async.queue(function (filename, callback) {
     isClean( filename, function(err, clean) {
@@ -1108,72 +898,7 @@ var q = async.queue(function (filename, callback) {
 // xake build
 // xake publish
 
-/** @function isUpToDate examines modification times to determine if a file needs to be compiled.
-    @param {String} the source filename inputFilename
-    @param {String} the name of the compiled output file, outputFilename; this file may be missing
-    @param {Array} filenames of dependencies referenced in inputFilename
-    @param {function} the callback(err, boolean) is called with a boolean as to whether or not the source file needs to be compiled
-*/
-function isUpToDate( inputFilename, outputFilename, dependencies, callback ) {
-    async.waterfall([
-	function(callback) {
-	    fs.stat( inputFilename, callback );
-	},
-	function(inputStat, callback) {
-	    callback( null, inputStat.mtime );
-	},
-	function(inputMTime, callback) {
-	    fs.stat( outputFilename, function(err, outputStat) {
-		if (err) {
-		    // nonexistent files simply have a very old modification time
-		    var veryOldTime = new Date(0);
-		    callback( null, inputMTime, veryOldTime );
-		} else {
-		    callback( null, inputMTime, outputStat.mtime );
-		}
-	    });
-	},
-	function(inputMTime, outputMTime, callback) {
-	    async.map( dependencies, fs.stat, function(err, results) {
-		callback( err, inputMTime, outputMTime, results );
-	    });
-	},
-	function(inputMTime, outputMTime, dependenciesStat, callback) {
-	    if (inputMTime.getTime() > outputMTime.getTime())
-		callback( null, false );
-	    else {
-		var allGood = true;
-		
-		dependenciesStat.forEach( function(s) {
-		    if (s.mtime.getTime() > outputMTime.getTime())
-			allGood = false;
-		});
 
-		callback( null, allGood );
-	    }
-	}
-    ], function(err, result) {
-	callback( err, result );
-    });
-}
-
-
-recursive('.', function (err, files) {
-    async.filter( files, isTexDocument, function(files) {
-	// BADBAD: should warn user about tex files that aren't committed
-	async.filter( files, isInRepository, function(files) {
-	    files.forEach( function( filename ) {
-		latexDependencies( filename, function(err, dependencies) {
-		    console.log( "WHEE dep for " + filename + " are " + dependencies );
-		    var outputFilename = filename.replace( /.tex$/, '.html' );
-		    isUpToDate( filename, outputFilename, dependencies, function(err, result) {
-			console.log( "uptodate = " + result + " for " + filename );
-		    });
-		});
-	    });
-	});
-    });
-});
 
 
 /*

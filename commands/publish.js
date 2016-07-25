@@ -5,6 +5,7 @@ var path = require('path');
 var files = require('../lib/files');
 var ximera = require('../lib/ximera-api');
 var meter = require('../lib/meter');
+var credentials = require('../lib/credentials');
 
 function publishFiles( command, directory, filenames, jobLimit, callback ) {
     meter.run( filenames.length, 'Publishing', function( label, tick ) {
@@ -47,11 +48,15 @@ var PublishCommand = module.exports = Command.extend({
 	var allFilenames = [];
 	var xourseFilenames = [];
 	var activityFilenames = [];
+
+	var commitHash = undefined;
 	
 	async.series([
 	    function(callback) {
 		winston.info( "Publishing the commit hash" );
-		ximera.publishCommit( global.repository, function(err) {
+		ximera.publishCommit( global.repository, function(err, sha) {
+		    commitHash = sha;
+		    
 		    if (err)
 			callback(err);
 		    else
@@ -95,8 +100,14 @@ var PublishCommand = module.exports = Command.extend({
 	], function(err) {
 	    if (err)
 		throw new Error(err);
-	    else
-		winston.info( "Published repository." );
+	    else {
+		credentials.load( function(err, keyAndSecret) {
+		    port = ""
+		    if (keyAndSecret.port != 80)
+			port = ":" + keyAndSecret.port;
+		    winston.info( "Published repository to http://" + keyAndSecret.server + port + "/course/" + commitHash + "/" );
+		});
+	    }
 	});
     }
 });
