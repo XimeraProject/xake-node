@@ -102,10 +102,15 @@ var PublishCommand = module.exports = Command.extend({
 		throw new Error(err);
 	    else {
 		credentials.load( function(err, keyAndSecret) {
-		    port = ""
-		    if (keyAndSecret.port != 80)
+		    var port = ""
+		    if ((keyAndSecret.port) && (keyAndSecret.port != 80))
 			port = ":" + keyAndSecret.port;
-		    winston.info( "Published repository to http://" + keyAndSecret.server + port + "/course/" + commitHash + "/" );
+
+		    var server = keyAndSecret.server;
+		    if (!server)
+			server = "ximera.osu.edu";
+		    
+		    winston.info( "Published repository to http://" + server + port + "/course/" + commitHash + "/" );
 		});
 	    }
 	});
