@@ -1,6 +1,6 @@
 {
   "name": "xake",
-    "version": "0.1.10",
+    "version": "0.1.11",
     "scripts": {
 	"start": "node xake.js"
     },
@@ -17,7 +17,7 @@
     "dependencies": {
 	"finalhandler": "*",
 	"serve-static": "*",		
-	"async": "*",
+	"async": "1.5.2",
 	"prompt": "*",
 	"mkdirp": "*",		
 	"toposort": "*",      
@@ -29,7 +29,7 @@
 	"winston": "*",
 	"fstream": "*",
 	"findit": "*",
-	"nodegit": "*",
+	"nodegit": "0.13.0",
 	"github": "*",            
 	"underscore": "*",
 	"js-yaml": "*",
