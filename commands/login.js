@@ -52,7 +52,7 @@ var LoginCommand = module.exports = Command.extend({
 		    description: "Key",
 		    message: "The API key is a v4 UUID, meaning hexadecimal digits separated by dashes",
 		    // This is a regexp for a v4 uuid
-		    pattern: /^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-4[0-9A-Fa-f]{3}-[89AB][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$/,
+		    pattern: /^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-4[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$/,
 		    required: true
 		},
 		secret: {
