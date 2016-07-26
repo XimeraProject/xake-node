@@ -20,8 +20,7 @@ var program = ronin({
     }
 });
 
-program.autoupdate(function () {
-    console.log( "This is xake, Version " + require('./package.json').version + "." );
-    
-    program.run();
-});
+// No more autoupdate because that breaks on SMC
+
+console.log( "This is xake, Version " + require('./package.json').version + "." );    
+program.run();
