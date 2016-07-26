@@ -50,12 +50,14 @@ var PublishCommand = module.exports = Command.extend({
 	var activityFilenames = [];
 
 	var commitHash = undefined;
+	var publicationLocation = undefined;	
 	
 	async.series([
 	    function(callback) {
 		winston.info( "Publishing the commit hash" );
-		ximera.publishCommit( global.repository, function(err, sha) {
+		ximera.publishCommit( global.repository, function(err, sha, location) {
 		    commitHash = sha;
+		    publicationLocation = location;
 		    
 		    if (err)
 			callback(err);
@@ -110,7 +112,7 @@ var PublishCommand = module.exports = Command.extend({
 		    if (!server)
 			server = "ximera.osu.edu";
 		    
-		    winston.info( "Published repository to http://" + server + port + "/course/" + commitHash + "/" );
+		    winston.info( "Published repository to http://" + server + port + publicationLocation );
 		});
 	    }
 	});
