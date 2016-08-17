@@ -6,6 +6,7 @@ var winston = null; // loaded from middleware
 var compile = require('../lib/compile');
 var files = require('../lib/files');
 var meter = require('../lib/meter');
+var ximeraLatex = require('../lib/ximera-latex');
 
 var Command = require('ronin').Command;
 
@@ -51,6 +52,13 @@ var BakeCommand = module.exports = Command.extend({
 
 	if (jobs === true)
 	    jobs = 1;
+
+	ximeraLatex.isInstalled( function(isInstalled) {
+	    if (isInstalled)
+		winston.debug( "Using the most recent version of ximeraLatex" );
+	    else
+		winston.debug( "Not using the same version of ximeraLatex as on GitHub" );
+	});	
 	
 	files.needingCompilation( global.repository, function(err, filenames) {
 	    if (err)

@@ -1,6 +1,6 @@
 {
   "name": "xake",
-    "version": "0.1.22",
+    "version": "0.1.23",
     "scripts": {
 	"start": "node xake.js"
     },
