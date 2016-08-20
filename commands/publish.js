@@ -6,6 +6,7 @@ var files = require('../lib/files');
 var ximera = require('../lib/ximera-api');
 var meter = require('../lib/meter');
 var credentials = require('../lib/credentials');
+var spawn = require('child_process').spawn;
 
 function publishFiles( command, directory, filenames, jobLimit, callback ) {
     meter.run( filenames.length, 'Publishing', function( label, tick ) {
@@ -37,9 +38,20 @@ var PublishCommand = module.exports = Command.extend({
     desc: 'Publish the compiled content to Ximera',
 
     options: {
+        open: {
+            type: 'boolean',
+            alias: 'o',
+            default: false
+        },	
+	
+        browser: {
+            type: 'string',
+            alias: 'b',
+	    default: 'firefox'
+        }	
     },
 
-    run: function (key, secret) {
+    run: function (open, browser) {
 	var global = this.global;
 	winston = global.winston;
 
@@ -113,6 +125,12 @@ var PublishCommand = module.exports = Command.extend({
 			server = "ximera.osu.edu";
 		    
 		    winston.info( "Published repository to http://" + server + port + publicationLocation );
+
+		    if (open) {
+			spawn(browser, ["http://" + server + port + publicationLocation], {
+			    detached: true
+			});
+		    }
 		});
 	    }
 	});
