@@ -4,6 +4,7 @@ var ronin = require('ronin');
 
 var program = ronin({
     path: __dirname,
+    name: "xake",
     desc: "Xake is 'make' for Ximera",
     
     options: {
@@ -22,5 +23,6 @@ var program = ronin({
 
 // No more autoupdate because that breaks on SMC
 
-console.log( "This is xake, Version " + require('./package.json').version + "." );    
+console.log( "This is xake, Version " + require('./package.json').version + ".\n" );
+
 program.run();
