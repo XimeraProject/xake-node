@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 lib-cov
 *.seed
 *.log
@@ -23,3 +24,7 @@ components
 bower_components
 
 environment.sh
+=======
+*~
+node_modules/
+>>>>>>> a00945c6c61ffb2d4ed863dee7bc23a385e9fb40
