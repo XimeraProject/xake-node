@@ -1,0 +1,14 @@
+mixin breadcrumbs(links,titles)
+  ul.breadcrumb
+    li
+      a(href="/")
+        | Home
+    - var i = 0;
+    - var linkCount = links.length
+    - while ( i < linkCount - 1 )
+      li
+        a(href="#{links[i]}")
+          | #{titles[i]}
+      - i++;
+    li.active
+      | #{titles[linkCount - 1]}

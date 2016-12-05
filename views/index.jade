@@ -1,0 +1,70 @@
+extends layouts/main
+
+block content
+  .callout
+     .container
+       .row
+         .col-md-12
+           img.pull-right(src="/public/images/osu/osu-web-header-vert2-rev.png")
+           h1 <span style="font-weight: 200;">The</span> <span style="font-weight: 700;">Ximera</span> <span style="font-weight: 200;">Project</span>
+       .row
+         .col-md-12
+           h2 Open courses.  Free math.
+           //h2 Under Construction.
+           //h4 Content is being reorganized.
+       //.row
+       //  .col-md-12
+       //    h2 Workshop July 25&ndash;27, 2016.
+       .row
+         .col-md-12
+           a.btn.btn-primary.btn-lg.pull-right(href="/course/mooculus/calculus1") View Calculus One
+           h3 Supported by NSF Grant DUE-1245433.
+
+  .container
+    .row
+      .col-md-4
+        a.giant-badge(href="/about/who#educators")
+          <i class="fa fa-4x fa-book"></i>
+          h3 For Educators
+          p Ximera lets you write documents in LaTeX and post them as interactive activities online for your students.
+          p By relying on GitHub to store content, you can easily share activities with your colleagues.
+      .col-md-4
+        a.giant-badge(href="/about/who#students")
+          <i class="fa fa-4x fa-pencil"></i>
+          h3 For Students
+          p Ximera brings the classroom to you, wherever you are.
+          p You can use your favorite device to study math anywhere, anytime.
+      .col-md-4
+        a.giant-badge(href="/about/who#researchers")
+          <i class="fa fa-4x fa-flask"></i>
+          h3 For Researchers 
+          p Ximera computes statistics on student success, such as point biserials.
+          p By creating branches in GitHub, you can quickly run A/B tests on student performance.
+
+    hr.frontpage
+    h3.text-center.frontpage Convert LaTeX to Interactive Activities
+    .row
+       .col-md-12
+         p.text-center Ximera converts LaTeX source into interactive, online activities for your students.
+    .row
+      .col-md-5
+        script(type="syntaxhighlighter",class="brush: latex; gutter: false;")
+          include sample.tex
+      .col-md-2
+         h4.text-center(style="padding-top: 9em;") is transformed into
+      .col-md-5
+        div(style="padding-top: 1em;")
+          img.img-responsive.img-thumbnail(src="/public/images/mockup/sample.png")
+
+    hr.frontpage
+    h3.text-center.frontpage Sign up for the Ximera mailing list
+    p.text-center If you are interested in finding out more about Ximera, interested in the <a href="/about/workshop">upcoming workshop</a>, or if you are interested in using Ximera in your own classroom, please <a href="/about/contact">contact us</a> at <a href="mailto:ximera@math.osu.edu">ximera@math.osu.edu</a>.
+    form.form-horizontal(role="form")
+      div.form-group
+        label.col-sm-2.col-sm-offset-2.control-label(for="mailingListEmail") Email:
+        div.col-sm-5
+          input.form-control(type="email" id="mailingListEmail" placeholder="Enter email")
+      div.form-group
+        div.col-sm-offset-4.col-sm-10
+          button.btn.btn-default(type="submit",id="mailingListSubmit") Join the list
+    div.col-sm-7.col-sm-offset-3.alert.alert-success(id="mailingListAlert",style="display: none;") <strong>Thank you.</strong> Your email has been added to the Ximera mailing list.

@@ -1,2 +1,30 @@
+<<<<<<< HEAD
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+
+\#*#
+
+pids
+logs
+results
+
+*~
+
+public/stylesheets/base.css
+
+npm-debug.log
+node_modules
+components
+bower_components
+
+environment.sh
+=======
 *~
 node_modules/
+>>>>>>> a00945c6c61ffb2d4ed863dee7bc23a385e9fb40
