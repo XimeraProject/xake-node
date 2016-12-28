@@ -42,7 +42,8 @@
 	"timeago": "*",
 	"colors": "*",
 	"tar": "*",
-	"minimist": "*"
+	"minimist": "*",
+        "process": "*"
     },
     
     "bin": {
